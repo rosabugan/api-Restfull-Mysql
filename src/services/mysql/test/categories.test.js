@@ -1,15 +1,48 @@
 const test = require('ava');
-const { connection, errorHandler } = require('./setup');
+//const { connection, errorHandler } = require('./setup');
+let response;
+test.beforeEach(()=>{response=''});
 
-const categories = require('../categories')({ connection, errorHandler });
+const  connection= {
+    query: (Query, param, _callback) => {
+      if(typeof param === 'function'){
+        _callback =  param;
+      }
+      switch (Query) {
+        case 'SELECT * from categories':
+          return response = {name: 'category-test', _id: 1 };
 
-test.beforeEach(() => connection.query('Truncate Table categories'));
-test.after.always(() => connection.query('Truncate Table categories'));
+        case 'INSERT INTO categories (name) values (?)':
+          return response = { name: param[0], insertId: 1, affectedRows: 1 };
+
+        case 'UPDATE categories set name = ? where id = ?':
+        case 'DELETE FROM categories where id=?':
+          return response = { affectedRows: 1 }
+
+        default:
+          return err = { error: 'não foi posivel executar a query' };
+      }
+      if(typeof _callback === 'function'){
+        _callback(err,response);
+      }
+    }
+  };
+
+const errorHandler= (err, msg, reject) => {
+
+      reject({ error: msg });
+ 
+}
+
+const categories = require('../categories')({connection, errorHandler});
+
+// test.beforeEach(() => connection.query('Truncate Table categories'));
+// test.after.always(() => connection.query('Truncate Table categories'));
 const create = () => categories.save('category-test');
 test('listar categorias', async (t) => {
   t.plan(2);
   await create();
-  
+
   const list = await categories.all();
   t.is(list.categories[0].name, 'category-test');
   t.is(list.categories.length, 1);

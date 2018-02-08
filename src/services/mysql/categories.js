@@ -1,12 +1,10 @@
-
-const categories = (deps) => {
-  return {
-
+      
+const categories = ({ connection, errorHandler }) => {
+  return {    
     all: () => {
       return new Promise((resolve, reject) => {
-
-        const { connection, errorHandler } = deps;
-        connection.query('SELECT * from categories', (error, results) => {
+        connection.query('SELECT * from categories',( error, results) => {
+          console.log('error:',error,'results:',results);
           if (error) {
             errorHandler(error, 'Falha ao listar as categorias', reject);
             return false;
@@ -18,9 +16,8 @@ const categories = (deps) => {
     },
     save: (name) => {
       return new Promise((resolve, reject) => {
-
-        const { connection, errorHandler } = deps;
-        connection.query('INSERT INTO categories (name) values (?)', [name], (error, results) => {
+        connection.query('INSERT INTO categories (name) values (?)', [name], (error, results)=> {
+          console.log('error:',error,'results:',results);
           if (error) {
             errorHandler(error, `Falha ao salvar a categoria ${name}`, reject);
             return false;
@@ -32,8 +29,6 @@ const categories = (deps) => {
     },
     update: (id, name) => {
       return new Promise((resolve, reject) => {
-
-        const { connection, errorHandler } = deps;
         connection.query('UPDATE categories set name = ? where id = ?', [name, id], (error, results) => {
           if (error) {
             errorHandler(error, `Falha ao atualizar a categorias ${name}`, reject);
@@ -46,8 +41,6 @@ const categories = (deps) => {
     },
     del: (id) => {
       return new Promise((resolve, reject) => {
-
-        const { connection, errorHandler } = deps;
         connection.query('DELETE FROM categories where id=?', [id], (error, results) => {
           if (error) {
             errorHandler(error, `Falha ao deletar a categorias ${id}`, reject);

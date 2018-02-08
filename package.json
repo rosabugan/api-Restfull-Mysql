@@ -5,18 +5,23 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/index.js",
-    "test": "ava --verbose -w"
+    "test": "ava --verbose -w",
+    "mocha": "nyc mocha --timeout 1000 test/**/*.js "
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "ava": "^0.25.0",
+    "chai": "^4.1.2",
     "eslint": "^4.15.0",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.8.0",
+    "mocha": "^5.0.0",
     "nodemon": "^1.14.11",
-    "restify-cors-middleware": "^1.1.0"
+    "nyc": "^11.4.1",
+    "restify-cors-middleware": "^1.1.0",
+    "sinon": "^4.2.2"
   },
   "dependencies": {
     "dotenv": "^5.0.0",
@@ -24,5 +29,25 @@
     "mysql": "^2.15.0",
     "restify": "^6.3.4",
     "sha256": "^0.2.0"
+  },
+  "nyc":{
+    "check-coverage": true,
+    "per-file": true,
+    "lines": 80,
+    "statements": 80,
+    "functions": 80,
+    "branches": 80,
+    "include": [
+      "src/**/*.js"
+    ],
+    "exclude": [
+      "src/**/*.test.js"
+    ],
+    "reporter": [
+        "text"
+    ],
+    "cache": true,
+    "all": true,
+    "report-dir": "./alternative"
   }
 }

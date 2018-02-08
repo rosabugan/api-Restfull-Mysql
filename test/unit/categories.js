@@ -1,86 +1,86 @@
 const { expect } = require('chai');
-const sinon = require('sinon');
 
-let response;
-beforeEach(() => { response = '' });
-const deps = {
-  connection: {
-    query: (Query, param) => {
-      switch (Query) {
-        case 'SELECT * from categories':
-          response = { name: 'category-test', _id: 1 };
-          break;
-
-        case 'INSERT INTO categories (name) values (?)':
-          response = { name: param[0], insertId: 1, affectedRows: 1 }
-          break;
-
-        case 'UPDATE categories set name = ? where id = ?':
-        case 'DELETE FROM categories where id=?':
-          response = { affectedRows: 1, id: param[0] };
-          break;
-
-        default:
-          response = { error: 'não foi posivel executar a query' };
-      }
-
-      return response;
+const { connection, errorHandler } = require('../../src/services/mysql/conection');
+const categories = require('../../src/services/mysql/categories')({ connection, errorHandler });
 
 
-    },
-
-    errorHandler: (err, msg, reject) => {
-
-      reject({ error: msg });
-    }
+connection.query = (sql, param, _callback) => {
+  let response;
+  let err;
+  if (typeof param === 'function'){
+    _callback = param;
   }
+   
+  switch (sql) {
+    case 'SELECT * from categories':
+      response = { name: 'category-test', _id: 1 };
+      break;
 
+    case 'SELECT * from categories where id = ?':
+      response = { name: 'category-test', _id: 1 };
+      break;
+
+    case 'INSERT INTO categories (name) values (?)':
+      response = { name: param[0], insertId: 1, affectedRows: 1 };
+      break;
+    case 'UPDATE categories set name = ? where id = ?':
+    case 'DELETE FROM categories where id=?':
+      response = { affectedRows: 1 };
+      break;
+
+    default:
+      err = { error: 'não foi posivel executar a query' };
+      break;
+  }
+  if (typeof _callback === 'function') {
+    _callback(err, response);
+  }
 }
 
-const categories = require('../../src/services/mysql/categories')(deps);
+
 describe('smoke Tests', () => {
   it('is categories.all a function', () => {
     expect(typeof categories.all).to.be.equal('function');
   });
 
-  it('categories.all return a object', () => {
-    const categ = categories.all();
+  it('categories.all return a object', async () => {
+    const categ = await categories.all();
     expect(typeof categ).to.be.equal('object');
   });
 });
 
 describe('happy way', () => {
   describe('categories.all return a mock object', () => {
-    it('categories.name is equal category', () => {
+    it('categories.name is equal category', async () => {
 
-      categories.all();
-      expect(response.name).to.be.equal('category-test');
+      const categ = await categories.all();
+      expect(categ.categories.name).to.be.equal('category-test');
     })
   })
 
   describe('categories.save return a mock object', () => {
     it('categories.name is equal new category', async () => {
 
-      await categories.save('teste');
-      expect(response.name).to.be.equal('teste');
+      const categ = await categories.save('category-test');
+      expect(categ.category.name).to.be.equal('category-test');
     })
   })
 
   describe('categories.update return a mock object', () => {
-    it('categories.affectedRows is equal 1', () => {
+    it('categories.affectedRows is equal 1', async () => {
 
-      categories.update(1, 'category');
+      const categ = await categories.update(1, 'category');
 
-      expect(response.affectedRows).to.be.equal(1);
+      expect(categ.affectedRows).to.be.equal(1);
     })
   })
 
   describe('categories.del return a mock object', () => {
-    it('affectedRows is equal 1', () => {
+    it('affectedRows is equal 1', async () => {
 
-      categories.del(1);
+      const categ = await categories.del(1);
 
-      expect(response.affectedRows).to.be.equal(1);
+      expect(categ.affectedRows).to.be.equal(1);
     })
   })
 })

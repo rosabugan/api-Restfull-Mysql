@@ -1,11 +1,13 @@
 const sha256 = require('sha256');
-const users = (deps) => {
+//const { connection, errorHandler } = require('./conection');
+
+const users = ({ connection, errorHandler }) => {
   return {
 
     all: () => {
       return new Promise((resolve, reject) => {
 
-        const { connection, errorHandler } = deps;
+        
         connection.query('SELECT name, email, id from users', (error, results) => {
           if (error) {
             errorHandler(error, 'Falha ao listar as usuarios', reject);
@@ -19,7 +21,6 @@ const users = (deps) => {
     save: (name, email, password) => {
       return new Promise((resolve, reject) => {
         const senha = sha256(password);
-        const { connection, errorHandler } = deps;
         connection.query('INSERT INTO users (name, email, password) values (?,?,?)', [name, email, senha], (error, results) => {
           if (error) {
             errorHandler(error, `Falha ao salvar a usuario ${email}`, reject);
