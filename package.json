@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon src/index.js",
     "test": "ava --verbose -w",
-    "mocha": "nyc mocha --timeout 1000 test/**/*.js "
+    "mocha": "nyc mocha --timeout 1000 test/**/*.js ",
+    "cat":"nyc mocha --timeout 1000 test/**/categories.js "
   },
   "keywords": [],
   "author": "",

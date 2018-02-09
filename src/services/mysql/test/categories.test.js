@@ -44,6 +44,7 @@ test('listar categorias', async (t) => {
   await create();
 
   const list = await categories.all();
+  console.log(list);
   t.is(list.categories[0].name, 'category-test');
   t.is(list.categories.length, 1);
 });

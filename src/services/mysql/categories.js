@@ -1,30 +1,24 @@
-      
 const categories = ({ connection, errorHandler }) => {
-  return {    
-    all: () => {
-      return new Promise((resolve, reject) => {
-        connection.query('SELECT * from categories',( error, results) => {
-          console.log('error:',error,'results:',results);
-          if (error) {
-            errorHandler(error, 'Falha ao listar as categorias', reject);
-            return false;
-          };
-          resolve({ categories: results });
-
-        });
+  return {
+    all: () => new Promise((resolve, reject) => {
+      connection.query('SELECT * from categories', (error, results) => {
+        if (error) {
+          errorHandler(error, 'Falha ao listar as categorias', reject);
+          return false;
+        }
+        resolve({ categories: results });
       });
-    },
+    }),
     save: (name) => {
       return new Promise((resolve, reject) => {
-        connection.query('INSERT INTO categories (name) values (?)', [name], (error, results)=> {
-          console.log('error:',error,'results:',results);
+        connection.query('INSERT INTO categories (name) values (?)', [name], (error, results) => {
           if (error) {
             errorHandler(error, `Falha ao salvar a categoria ${name}`, reject);
             return false;
           };
           resolve({ category: { name, id: results.insertId } });
 
-        });
+        })
       });
     },
     update: (id, name) => {

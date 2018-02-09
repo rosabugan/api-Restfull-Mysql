@@ -3,40 +3,38 @@ const { expect } = require('chai');
 const { connection, errorHandler } = require('../../src/services/mysql/conection');
 const categories = require('../../src/services/mysql/categories')({ connection, errorHandler });
 
-
-connection.query = (sql, param, _callback) => {
+connection.query = (sql, param, callback = param) => {
   let response;
   let err;
-  if (typeof param === 'function'){
-    _callback = param;
-  }
-   
   switch (sql) {
     case 'SELECT * from categories':
-      response = { name: 'category-test', _id: 1 };
+      response = { name: 'category-test', id: 1 };
       break;
 
     case 'SELECT * from categories where id = ?':
-      response = { name: 'category-test', _id: 1 };
+      if (param[0] === 1) {
+        response = { name: 'category-test', id: param[0] };
+      } else { err = { error: 'não foi posivel executar a query' }; }
       break;
 
     case 'INSERT INTO categories (name) values (?)':
-      response = { name: param[0], insertId: 1, affectedRows: 1 };
+      if (typeof (param[0]) === 'string') {
+        response = { name: param[0], insertId: 1, affectedRows: 1 }
+      } else { err = { error: 'não foi posivel executar a query' } };
       break;
     case 'UPDATE categories set name = ? where id = ?':
     case 'DELETE FROM categories where id=?':
-      response = { affectedRows: 1 };
+      response = { affectedRows: 1, id: param[0] };
       break;
 
     default:
       err = { error: 'não foi posivel executar a query' };
       break;
   }
-  if (typeof _callback === 'function') {
-    _callback(err, response);
+  if (typeof callback === 'function') {
+    callback(err, response);
   }
-}
-
+};
 
 describe('smoke Tests', () => {
   it('is categories.all a function', () => {
@@ -81,6 +79,16 @@ describe('happy way', () => {
       const categ = await categories.del(1);
 
       expect(categ.affectedRows).to.be.equal(1);
+    })
+  })
+})
+describe('bad way', () => {
+  describe('categories.save', () => {
+    it('should be break if not recive parameters ', async () => {
+
+      const categ = await categories.save();
+
+      expect(categ).to.be.a('error');
     })
   })
 })

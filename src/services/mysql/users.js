@@ -34,7 +34,7 @@ const users = ({ connection, errorHandler }) => {
     update: (id, password) => {
       return new Promise((resolve, reject) => {
         const senha = sha256(password);
-        const { connection, errorHandler } = deps;
+       
         connection.query('UPDATE users set password = ? where id = ?', [senha, id], (error, results) => {
           if (error) {
             errorHandler(error, `Falha ao atualizar o usuario ${id}`, reject);
@@ -48,7 +48,6 @@ const users = ({ connection, errorHandler }) => {
     del: (id) => {
       return new Promise((resolve, reject) => {
 
-        const { connection, errorHandler } = deps;
         connection.query('DELETE FROM users where id=?', [id], (error, results) => {
           if (error) {
             errorHandler(error, `Falha ao deletar o usuario ${id}`, reject);
